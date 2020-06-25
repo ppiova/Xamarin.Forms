@@ -183,7 +183,7 @@ namespace Xamarin.Forms.Controls.Issues
 				if (!String.IsNullOrWhiteSpace(behavior.TextOverride))
 					behavior.ClearValue(BackButtonBehavior.TextOverrideProperty);
 				else
-					behavior.TextOverride = "BackText";
+					behavior.TextOverride = "T3xt";
 			}
 
 			public void ToggleIcon()
@@ -212,12 +212,12 @@ namespace Xamarin.Forms.Controls.Issues
 
 			var commandResult = RunningApp.WaitForElement(CommandResultId)[0].ReadText();
 
-			Assert.AreEqual(commandResult, "parameter");
+			Assert.AreEqual("parameter", commandResult);
 			RunningApp.EnterText(EntryCommandParameter, "canexecutetest");
 			RunningApp.Tap(ToggleCommandCanExecuteId);
 
 			commandResult = RunningApp.WaitForElement(CommandResultId)[0].ReadText();
-			Assert.AreEqual(commandResult, "parameter");
+			Assert.AreEqual("parameter", commandResult);
 		}
 
 		[Test]
@@ -237,7 +237,11 @@ namespace Xamarin.Forms.Controls.Issues
 		{
 			RunningApp.Tap(PushPageId);
 			RunningApp.Tap(ToggleTextId);
-			RunningApp.Tap("BackText");
+#if __ANDROID__
+			base.TapBackArrow();
+#else
+			RunningApp.Tap("T3xt");
+#endif
 			RunningApp.WaitForNoElement(FlyoutOpen);
 			RunningApp.WaitForElement("Page 0");
 		}
@@ -246,7 +250,12 @@ namespace Xamarin.Forms.Controls.Issues
 		public void BackButtonSetToTextStillOpensFlyout()
 		{
 			RunningApp.Tap(ToggleTextId);
-			RunningApp.Tap("BackText");
+
+#if __ANDROID__
+			base.TapBackArrow();
+#else
+			RunningApp.Tap("T3xt");
+#endif
 			RunningApp.WaitForElement(FlyoutOpen);
 		}
 #endif
