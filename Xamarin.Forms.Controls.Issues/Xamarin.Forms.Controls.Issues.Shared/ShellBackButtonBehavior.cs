@@ -226,7 +226,12 @@ namespace Xamarin.Forms.Controls.Issues
 			RunningApp.Tap(PushPageId);
 			RunningApp.Tap(ToggleCommandId);
 			RunningApp.EnterText(EntryCommandParameter, "parameter");
+
+#if __ANDROID__
+			base.TapBackArrow();
+#else
 			RunningApp.Tap("Page 0");
+#endif
 
 			var commandResult = RunningApp.WaitForElement(CommandResultId)[0].ReadText();
 			Assert.AreEqual(commandResult, "parameter");
