@@ -302,17 +302,23 @@ namespace Xamarin.Forms.Platform.iOS
 		void LeftBarButtonItemHandler(UIViewController controller, bool isRootPage)
 		{
 			var behavior = BackButtonBehavior;
-			ICommand defaultCommand = new Command(() => OnMenuButtonPressed(this, EventArgs.Empty));
-			var command = behavior.GetPropertyIfSet(BackButtonBehavior.CommandProperty, defaultCommand);
+
+			var command = behavior.GetPropertyIfSet<ICommand>(BackButtonBehavior.CommandProperty, null);
 			var commandParameter = behavior.GetPropertyIfSet<object>(BackButtonBehavior.CommandParameterProperty, null);
 
-			if (command == null && !isRootPage && controller?.ParentViewController is UINavigationController navigationController)
+			if(command != null)
 			{
-				navigationController.PopViewController(true);
-				return;
+				command.Execute(commandParameter);
 			}
-
-			command?.Execute(commandParameter);
+			else if (!isRootPage)
+			{
+				if(controller?.ParentViewController is UINavigationController navigationController)
+					navigationController.PopViewController(true);
+			}
+			else
+			{
+				_context.Shell.SetValueFromRenderer(Shell.FlyoutIsPresentedProperty, true);
+			}
 		}
 
 
@@ -348,11 +354,6 @@ namespace Xamarin.Forms.Platform.iOS
 
 			_nSCache.SetObjectforKey(img, (NSString)hamburgerKey);
 			return img;
-		}
-
-		void OnMenuButtonPressed(object sender, EventArgs e)
-		{
-			_context.Shell.SetValueFromRenderer(Shell.FlyoutIsPresentedProperty, true);
 		}
 
 		async void OnToolbarItemsChanged(object sender, NotifyCollectionChangedEventArgs e)

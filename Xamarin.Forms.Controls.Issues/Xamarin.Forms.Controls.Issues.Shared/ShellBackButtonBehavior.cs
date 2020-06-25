@@ -36,11 +36,13 @@ namespace Xamarin.Forms.Controls.Issues
 		const string ToggleTextId = "ToggleTextId";
 		const string CommandResultId = "CommandResult";
 		const string PushPageId = "PushPageId";
+		const string FlyoutOpen = "Flyout Open";
 
 		protected override void Init()
 		{
 			AddContentPage(new BackButtonPage());
-		}
+			Items.Add(new MenuItem() { Text = "Flyout Open", AutomationId = "Flyout Open" });
+			}
 
 		public class BackButtonPage : ContentPage
 		{
@@ -50,6 +52,7 @@ namespace Xamarin.Forms.Controls.Issues
 
 			public BackButtonPage()
 			{
+				Title = $"Page {Shell.Current?.Navigation?.NavigationStack?.Count ?? 0}";
 				_commandParameter = new Entry()
 				{
 					Placeholder = "Command Parameter",
@@ -180,7 +183,7 @@ namespace Xamarin.Forms.Controls.Issues
 				if (!String.IsNullOrWhiteSpace(behavior.TextOverride))
 					behavior.ClearValue(BackButtonBehavior.TextOverrideProperty);
 				else
-					behavior.TextOverride = "Text";
+					behavior.TextOverride = "BackText";
 			}
 
 			public void ToggleIcon()
@@ -223,10 +226,28 @@ namespace Xamarin.Forms.Controls.Issues
 			RunningApp.Tap(PushPageId);
 			RunningApp.Tap(ToggleCommandId);
 			RunningApp.EnterText(EntryCommandParameter, "parameter");
-			TapBackArrow();
+			RunningApp.Tap("Page 0");
 
 			var commandResult = RunningApp.WaitForElement(CommandResultId)[0].ReadText();
 			Assert.AreEqual(commandResult, "parameter");
+		}
+
+		[Test]
+		public void BackButtonSetToTextStillNavigatesBack()
+		{
+			RunningApp.Tap(PushPageId);
+			RunningApp.Tap(ToggleTextId);
+			RunningApp.Tap("BackText");
+			RunningApp.WaitForNoElement(FlyoutOpen);
+			RunningApp.WaitForElement("Page 0");
+		}
+
+		[Test]
+		public void BackButtonSetToTextStillOpensFlyout()
+		{
+			RunningApp.Tap(ToggleTextId);
+			RunningApp.Tap("BackText");
+			RunningApp.WaitForElement(FlyoutOpen);
 		}
 #endif
 	}
